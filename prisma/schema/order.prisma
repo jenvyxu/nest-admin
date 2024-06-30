@@ -1,0 +1,30 @@
+model Order {
+  id    Int @id @default(autoincrement())
+  no String @db.VarChar(256) // 订单编号
+  service String @db.VarChar(2048)
+  clientName  String? @db.Char(64) @map("client_name")
+  clientAddress String? @db.VarChar(1024) @map("client_address")
+  clientTel String? @db.Char(32) @map("client_tel")
+  price Decimal?
+  finalPrice  Decimal? @map("final_price")
+  status Status  @default(created)  // 0 undo 1 派单中 2完成 3 已回访 4 挂单
+  review String? @db.VarChar(256)
+  engineerId Int?
+  reject String? @db.VarChar(256)
+  note String? @db.VarChar(256)
+  rate Int? @db.TinyInt() @default(0)
+  visitAt DateTime? @map("visit_at") 
+  finishAt DateTime? @map("finish_at")
+  expireAt DateTime? @map("expire_at") // 保质期
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+}
+
+enum Status {
+  created
+  process
+  complete
+  review
+  fail
+}

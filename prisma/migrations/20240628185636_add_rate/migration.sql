@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `order` ADD COLUMN `rate` TINYINT NOT NULL DEFAULT 0;

@@ -1,0 +1,12 @@
+model Engineer {
+  id    Int     @id @default(autoincrement())
+  name String @db.Char(64)
+  address String @db.VarChar(256)
+  tel String @db.Char(32)
+  rate Int  @db.TinyInt()  @default(0)
+  orderCount Int  @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+}
+
