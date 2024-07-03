@@ -5,14 +5,7 @@ model User {
   name String? @db.Char(64)
   address String? @db.VarChar(256)
   tel String? @db.Char(32)
-  role Role @default(ADMIN) // 0 admin 1 engineer 2 normal user
-  rate Int? //评分
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
-}
-
-enum Role {
-  ADMIN @map("0")
-  ENEINEER @map("1")
 }
