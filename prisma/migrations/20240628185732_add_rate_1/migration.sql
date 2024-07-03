@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `order` MODIFY `rate` TINYINT NULL DEFAULT 0;
