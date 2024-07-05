@@ -5,6 +5,8 @@ import {
   UseGuards,
   Request,
   BadRequestException,
+  HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
@@ -18,14 +20,19 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @UseGuards(AuthGuard('local'))
+  @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@Request() req): Promise<LoginResponseDTO | BadRequestException> {
     return this.authService.login(req.user);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Post('register')
   async register(@Body() registerBody: RegisterRequestDto) {
-    console.log(123);
     return this.authService.register(registerBody);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('logout')
+  async logout() {}
 }

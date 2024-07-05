@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Query,
@@ -12,19 +14,21 @@ import { UpdateEngineerDto } from './dto/update-engineer.dto';
 import { EngineerService } from './engineer.service';
 import { Public } from '../auth/decorators/public.decorator';
 
-@Public()
+// @Public()
 @Controller('engineer')
 export class EngineerController {
   constructor(private engineerService: EngineerService) {}
+  @HttpCode(HttpStatus.OK)
   @Post('add')
   async addEngineer(@Body() engineer: CreateEngineerDto) {
-    await this.engineerService.create(engineer);
+    return await this.engineerService.create(engineer);
   }
 
-  @Delete('remove/:id')
+  @HttpCode(HttpStatus.OK)
+  @Delete('delete/:id')
   async removeEngineer(@Param('id') id: string) {
     console.log(id);
-    await this.engineerService.remove(Number(id));
+    return await this.engineerService.remove(Number(id));
   }
 
   @Post('update')
@@ -33,31 +37,32 @@ export class EngineerController {
     await this.engineerService.update(id, udpateData);
   }
 
+  // @Get('list')
+  // async getAllEngieer(@Query() query: { size?: string; lastId?: string }) {
+  //   let size: number;
+  //   let lasdId: number;
+
+  //   if (query.size) {
+  //     try {
+  //       size = parseInt(query.size);
+  //     } catch {
+  //       size = 40;
+  //     }
+  //   }
+
+  //   if (query.lastId) {
+  //     try {
+  //       lasdId = parseInt(query.lastId);
+  //     } catch {
+  //       lasdId = undefined;
+  //     }
+  //   }
+
+  //   return await this.engineerService.getList({ size, lasdId });
+  // }
+
+  @HttpCode(HttpStatus.OK)
   @Get('list')
-  async getAllEngieer(@Query() query: { size?: string; lastId?: string }) {
-    let size: number;
-    let lasdId: number;
-
-    if (query.size) {
-      try {
-        size = parseInt(query.size);
-      } catch {
-        size = 40;
-      }
-    }
-
-    if (query.lastId) {
-      try {
-        lasdId = parseInt(query.lastId);
-      } catch {
-        lasdId = undefined;
-      }
-    }
-
-    return await this.engineerService.getList({ size, lasdId });
-  }
-
-  @Get('all')
   async getAllEngineer() {
     return await this.engineerService.findAll();
   }

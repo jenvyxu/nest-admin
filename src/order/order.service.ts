@@ -90,10 +90,11 @@ export class OrderService {
     const { visitAt, createdAt, engineerId, no } = data;
     return await this.prisma.order.findMany({
       where: {
-        visitAt,
-        createdAt,
+        visitAt: visitAt ? new Date(visitAt) : undefined,
+        createdAt: createdAt ? new Date(createdAt) : undefined,
         engineerId,
         no,
+        deletedAt: null,
       },
     });
   }
@@ -107,17 +108,17 @@ export class OrderService {
     });
   }
 
-  async findAll() {
+  async findAll({ status }: { status: Status }) {
     return await this.prisma.order.findMany({
       where: {
+        status,
         deletedAt: null,
       },
     });
   }
 
   async getList(query: { lastId?: number; size?: number; status?: Status }) {
-    const { lastId, size = 30, status } = query;
-    console.log('sss', status);
+    const { lastId, size = 40, status } = query;
 
     if (status) {
       if (lastId !== undefined) {
@@ -130,7 +131,7 @@ export class OrderService {
             status,
           },
           orderBy: {
-            id: 'desc',
+            id: 'asc',
           },
         });
       }
@@ -142,7 +143,7 @@ export class OrderService {
           status,
         },
         orderBy: {
-          id: 'desc',
+          id: 'asc',
         },
       });
     }
@@ -156,7 +157,7 @@ export class OrderService {
           deletedAt: null,
         },
         orderBy: {
-          id: 'desc',
+          id: 'asc',
         },
       });
     }
@@ -167,7 +168,29 @@ export class OrderService {
         deletedAt: null,
       },
       orderBy: {
-        id: 'desc',
+        id: 'asc',
+      },
+    });
+  }
+
+  async getListByPage({
+    skip = 0,
+    take = 40,
+    status,
+  }: {
+    skip: number;
+    take: number;
+    status?: Status;
+  }) {
+    return await this.prisma.order.findMany({
+      take,
+      skip,
+      where: {
+        deletedAt: null,
+        status,
+      },
+      orderBy: {
+        id: 'asc',
       },
     });
   }

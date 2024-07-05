@@ -29,8 +29,11 @@ export class EngineerService {
   }
 
   remove(id: number) {
-    return this.prisma.engineer.delete({
+    return this.prisma.engineer.update({
       where: { id },
+      data: {
+        deletedAt: new Date(),
+      },
     });
   }
 
