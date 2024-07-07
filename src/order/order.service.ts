@@ -86,14 +86,38 @@ export class OrderService {
     createdAt?: string;
     engineerId?: number;
     no?: string;
+    tel?: string;
   }) {
-    const { visitAt, createdAt, engineerId, no } = data;
+    const { visitAt, createdAt, engineerId, no, tel } = data;
+    let visitAtRange = {};
+    if (visitAt !== undefined) {
+      const d = new Date(visitAt);
+      const start = new Date(d.toISOString());
+      const end = new Date(d.setDate(d.getDate() + 1)).toISOString();
+      visitAtRange = {
+        lte: end,
+        gte: start,
+      };
+    }
+
+    let createAtRange = {};
+    if (createdAt !== undefined) {
+      const d = new Date(createdAt);
+      const start = new Date(d.toISOString());
+      const end = new Date(d.setDate(d.getDate() + 1)).toISOString();
+      createAtRange = {
+        lte: end,
+        gte: start,
+      };
+    }
+
     return await this.prisma.order.findMany({
       where: {
-        visitAt: visitAt ? new Date(visitAt) : undefined,
-        createdAt: createdAt ? new Date(createdAt) : undefined,
+        visitAt: visitAt ? visitAtRange : undefined,
+        createdAt: createdAt ? createAtRange : undefined,
         engineerId,
         no,
+        clientTel: tel,
         deletedAt: null,
       },
     });

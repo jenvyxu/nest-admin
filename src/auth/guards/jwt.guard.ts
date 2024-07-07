@@ -1,6 +1,7 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
+import { MACHINE_KEY } from '../decorators/machine.decorator';
 
 @Injectable()
 export class JwtGuard extends AuthGuard('jwt') {
@@ -16,9 +17,16 @@ export class JwtGuard extends AuthGuard('jwt') {
 
     if (isPublic) return true;
 
-    const request = context.switchToHttp().getRequest();
+    const machineKey = this.reflector.getAllAndOverride(MACHINE_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
-    console.log('request', request);
+    const machineKeyFromHeader = context.switchToHttp().getRequest().headers[
+      'machine-key'
+    ];
+
+    if (machineKey === machineKeyFromHeader) return true;
 
     return super.canActivate(context);
   }

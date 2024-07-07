@@ -13,16 +13,16 @@ import { JwtStrategy } from './strategy/jwt.strategy';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: {
-          expiresIn: parseInt(
-            configService.getOrThrow<string>(
+      useFactory: async (configService: ConfigService) => {
+        return {
+          secret: configService.get<string>('JWT_SECRET'),
+          signOptions: {
+            expiresIn: configService.getOrThrow<string>(
               'ACCESS_TOKEN_VALIDITY_DURATION_IN_SEC',
             ),
-          ),
-        },
-      }),
+          },
+        };
+      },
     }),
   ],
   controllers: [AuthController],

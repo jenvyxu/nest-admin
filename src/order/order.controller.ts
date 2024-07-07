@@ -14,13 +14,14 @@ import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Status } from './types/status';
-import { Public } from 'src/auth/decorators/public.decorator';
+import { FromMachine } from 'src/auth/decorators/machine.decorator';
 
 // @Public()
 @Controller('order')
 export class OrderController {
   constructor(private orderService: OrderService) {}
   @HttpCode(HttpStatus.OK)
+  @FromMachine()
   @Post('add')
   async addOrder(@Body() order: CreateOrderDto) {
     return await this.orderService.create(order);
@@ -97,10 +98,10 @@ export class OrderController {
       createdAt?: string;
       engineerId?: number;
       no?: string;
+      tel?: string;
     },
   ) {
     const result = await this.orderService.query(data);
-    console.log(result);
     return result;
   }
 
