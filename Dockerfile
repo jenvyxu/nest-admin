@@ -1,5 +1,5 @@
 FROM node:20-slim
-WORKDIR dist/src
+WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install --only=production
 COPY . ./
