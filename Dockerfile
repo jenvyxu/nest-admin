@@ -1,6 +1,6 @@
-FROM node:20-slim
-WORKDIR dist/src
+FROM node:12-slim
+WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install --only=production
 COPY . ./
-CMD [ "node", "main.js" ]
+CMD [ "node", "index.js" ]
