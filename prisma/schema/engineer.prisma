@@ -1,7 +1,7 @@
 model Engineer {
   id    Int     @id @default(autoincrement())
   name String @db.Char(64)
-  address String @db.VarChar(256)
+  address String @db.VarChar(1024)
   tel String @db.Char(32)
   rate Int  @db.TinyInt()  @default(0)
   orderCount Int  @default(0)
