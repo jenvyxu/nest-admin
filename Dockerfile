@@ -1,21 +1,31 @@
-FROM node:21 AS base
-WORKDIR /app
-# Copy package.json and pnpm-lock.yaml
-COPY pnpm-lock.yaml package.json ./
-# Install app dependencies using PNPM
-RUN npm install -g pnpm
-# Install dependencies
-RUN pnpm i 
-# Copy the application code 
+
+
+# FROM node:21 AS build
+# RUN apt update && apt install libssl-dev -y --no-install-recommends 
+
+
+FROM node:22 AS build
+WORKDIR /usr/src/app
+COPY package.json .
+# COPY package-lock.json .
+RUN npm install
 COPY . .
-# Build the TypeScript code
-RUN pnpm run build
+RUN npx prisma generate
+RUN npm run build
 
-# Expose the app
+FROM node:22-slim
+RUN apt update && apt install libssl-dev dumb-init -y --no-install-recommends
+WORKDIR /usr/src/app
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+COPY --chown=node:node --from=build /usr/src/app/.env .env
+COPY --chown=node:node --from=build /usr/src/app/package.json .
+# COPY --chown=node:node --from=build /usr/src/app/package-lock.json .
+RUN npm install --omit=dev
+COPY --chown=node:node --from=build /usr/src/app/node_modules/.prisma/client  ./node_modules/.prisma/client
+
+ENV NODE_ENV production
+# ENV DATABASE_URL="mysql://root:123456@localhost:3307/feige-admin"
+# ENV JWT_SECRET="feigejiawei"
+# ENV ACCESS_TOKEN_VALIDITY_DURATION_IN_SEC = "7d"
 EXPOSE 3000
-# Start the application
-
-# CMD ["pnpm", "prisma", "generate"]
-# CMD ["pnpm", "start"]
-
-CMD pnpm prisma generate && pnpm start
+CMD ["dumb-init", "node", "dist/src/main"]
