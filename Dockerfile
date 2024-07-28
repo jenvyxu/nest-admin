@@ -1,31 +1,49 @@
+FROM node:22 AS base
+ 
+FROM base AS deps
+ 
+RUN corepack enable
+WORKDIR  /usr/src/app
+COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm fetch --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile --prod
+# RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 
-
-# FROM node:21 AS build
-# RUN apt update && apt install libssl-dev -y --no-install-recommends 
-
-
-FROM node:22 AS build
-WORKDIR /usr/src/app
-COPY package.json .
-# COPY package-lock.json .
-RUN npm install
+FROM base AS build
+ 
+RUN corepack enable
+WORKDIR  /usr/src/app
+COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm fetch --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 COPY . .
-RUN npx prisma generate
-RUN npm run build
+RUN pnpm prisma generate
+RUN pnpm build
 
 FROM node:22-slim
-RUN apt update && apt install libssl-dev dumb-init -y --no-install-recommends
+RUN corepack enable
+# RUN apt update && apt install libssl-dev dumb-init -y --no-install-recommends
 WORKDIR /usr/src/app
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 # COPY --chown=node:node --from=build /usr/src/app/.env .env
 COPY --chown=node:node --from=build /usr/src/app/package.json .
-# COPY --chown=node:node --from=build /usr/src/app/package-lock.json .
-RUN npm install --omit=dev
-COPY --chown=node:node --from=build /usr/src/app/node_modules/.prisma/client  ./node_modules/.prisma/client
+COPY --chown=node:node --from=build /usr/src/app/pnpm-lock.yaml .
+COPY --chown=node:node --from=build /usr/src/app/prisma ./prisma
+# COPY --from=build /usr/src/app/src/generated/client ./dist/src/generated/client
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 
-ENV NODE_ENV production
+RUN  pnpm prisma generate
+RUN npm install pm2 -g
+# COPY --chown=node:node --from=build /usr/src/app/node_modules/@nestjs ./dist/node_modules/@nestjs
+# COPY --chown=node:node --from=build  /usr/src/app/node_modules/.pnpm/@prisma+client@5.16.1_prisma@5.16.1/node_modules/@prisma/client ./node_modules/.prisma/client
+
+# ENV NODE_ENV="production"
 # ENV DATABASE_URL="mysql://root:123456@localhost:3307/feige-admin"
+
+# ENV DATABASE_URL="mysql://root:@xzw212647@sh-cynosdbmysql-grp-eifjw072.sql.tencentcdb.com:23115/feigejiawei"
 # ENV JWT_SECRET="feigejiawei"
-# ENV ACCESS_TOKEN_VALIDITY_DURATION_IN_SEC = "7d"
+# ENV ACCESS_TOKEN_VALIDITY_DURATION_IN_SEC="7d"
+
 EXPOSE 3000
-CMD ["dumb-init", "node", "dist/src/main"]
+# CMD ["dumb-init", "node", "dist/src/main"]
+CMD ["pm2-runtime", "dist/src/main.js"]
