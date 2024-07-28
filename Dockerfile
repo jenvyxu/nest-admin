@@ -41,8 +41,9 @@ RUN npm install pm2 -g
 # ENV DATABASE_URL="mysql://root:123456@localhost:3307/feige-admin"
 
 # ENV DATABASE_URL="mysql://root:@xzw212647@sh-cynosdbmysql-grp-eifjw072.sql.tencentcdb.com:23115/feigejiawei"
-# ENV JWT_SECRET="feigejiawei"
-# ENV ACCESS_TOKEN_VALIDITY_DURATION_IN_SEC="7d"
+ENV DATABASE_URL="mysql://root:@xzw212647@10.22.104.117:3306/feigejiawei"
+ENV JWT_SECRET="feigejiawei"
+ENV ACCESS_TOKEN_VALIDITY_DURATION_IN_SEC="7d"
 
 EXPOSE 3000
 # CMD ["dumb-init", "node", "dist/src/main"]
