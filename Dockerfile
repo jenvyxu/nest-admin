@@ -5,17 +5,17 @@ FROM base AS deps
 RUN corepack enable
 WORKDIR  /usr/src/app
 COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm fetch --frozen-lockfile
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile --prod
-# RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
+RUN  pnpm fetch --frozen-lockfile
+RUN  pnpm install --frozen-lockfile --prod
+# RUN  pnpm install --frozen-lockfile
 
 FROM base AS build
  
 RUN corepack enable
 WORKDIR  /usr/src/app
 COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm fetch --frozen-lockfile
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
+RUN  pnpm fetch --frozen-lockfile
+RUN  pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm prisma generate
 RUN pnpm build
@@ -23,6 +23,7 @@ RUN pnpm build
 FROM node:22-slim
 RUN corepack enable
 # RUN apt update && apt install libssl-dev dumb-init -y --no-install-recommends
+RUN apt-get update -y && apt-get install -y openssl
 WORKDIR /usr/src/app
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 # COPY --chown=node:node --from=build /usr/src/app/.env .env
@@ -30,7 +31,7 @@ COPY --chown=node:node --from=build /usr/src/app/package.json .
 COPY --chown=node:node --from=build /usr/src/app/pnpm-lock.yaml .
 COPY --chown=node:node --from=build /usr/src/app/prisma ./prisma
 # COPY --from=build /usr/src/app/src/generated/client ./dist/src/generated/client
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
+RUN  pnpm install --frozen-lockfile
 
 RUN  pnpm prisma generate
 RUN npm install pm2 -g
