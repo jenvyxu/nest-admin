@@ -27,7 +27,6 @@ export class EngineerController {
   @HttpCode(HttpStatus.OK)
   @Delete('delete/:id')
   async removeEngineer(@Param('id') id: string) {
-    console.log(id);
     return await this.engineerService.remove(Number(id));
   }
 

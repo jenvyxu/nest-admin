@@ -49,7 +49,6 @@ export class OrderController {
       skip?: boolean;
     },
   ) {
-    console.log(data);
     const { page = 0, size = 40, status } = data;
     return await this.orderService.getListByPage({
       take: size,
@@ -66,7 +65,6 @@ export class OrderController {
       status?: string;
     },
   ) {
-    console.log(data);
     const { status } = data;
     // const isValidStatus =
     //   status &&
