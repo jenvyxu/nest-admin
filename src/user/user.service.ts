@@ -11,8 +11,10 @@ export class UserService {
     });
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll() {
+    return await this.prisma.user.findMany({
+      where: { deletedAt: null },
+    });
   }
 
   async findOneByUsername(username: string) {

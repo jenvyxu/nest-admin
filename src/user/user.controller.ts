@@ -2,9 +2,11 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
+  Param,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import * as bcrypt from 'bcrypt';
@@ -36,9 +38,28 @@ export class UserController {
 
     await this.userService.update(id, {
       username: username === '' ? undefined : username,
-      password: hashedPassword,
+      password: hashedPassword
     });
 
     return { message: '修改成功' };
+  }
+
+
+  @Post("/subscription")
+  async subscription(@Body() data: {  email?: string; code?: string; isActive?: boolean; id: number}) {
+    const { email, isActive, id } = data
+    await this.userService.update(id, {
+      email,
+      isActive,
+    });
+
+    return {
+       message: '修改成功'
+    }
+  }
+
+  @Get(':id')
+  async getUserInfo(@Param('id') id: string) {
+    return await this.userService.findOne(Number(id));
   }
 }

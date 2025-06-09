@@ -3,7 +3,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Status } from './types/status';
-import { generateOrderNo } from 'src/utils';
+import { generateOrderNo } from '../utils';
 
 @Injectable()
 export class OrderService {
@@ -137,6 +137,9 @@ export class OrderService {
       where: {
         status,
         deletedAt: null,
+      },
+      orderBy: {
+        id: 'desc',
       },
     });
   }

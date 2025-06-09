@@ -9,15 +9,18 @@ import { JwtGuard } from './auth/guards/jwt.guard';
 import { ConfigModule } from '@nestjs/config';
 import { EngineerModule } from './engineer/engineer.module';
 import { OrderModule } from './order/order.module';
+import { MailModule } from './mail/mail.module';
+
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true,  envFilePath: '.env', }),
     PrismaModule,
     AuthModule,
     UserModule,
     EngineerModule,
     OrderModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [

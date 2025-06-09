@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Param,
@@ -14,17 +15,43 @@ import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Status } from './types/status';
-import { FromMachine } from 'src/auth/decorators/machine.decorator';
+import { FromMachine } from '../auth/decorators/machine.decorator';
+import { MailService } from '../mail/mail.service';
+import { UserService } from 'src/user/user.service';
+import dayjs from 'dayjs';
 
 // @Public()
 @Controller('order')
 export class OrderController {
-  constructor(private orderService: OrderService) {}
+  constructor(private orderService: OrderService, private readonly mailService: MailService, private readonly userService: UserService) {}
   @HttpCode(HttpStatus.OK)
   @FromMachine()
   @Post('add')
-  async addOrder(@Body() order: CreateOrderDto) {
-    return await this.orderService.create(order);
+  async addOrder(@Body() order: CreateOrderDto, @Headers("machine-key") machineKey: string) {
+    const newOrder = await this.orderService.create(order);
+    if(machineKey === 'feigejiawei') {
+      // 发送通知
+      // 发送邮件通知
+      const users = await this.userService.findAll()
+      console.log(users);
+      if(users && users.length > 0) {
+        for(let user of users) {
+          const { isActive, email} = user
+          if(isActive && email) {
+            const {  no, service, clientName, clientAddress, clientTel, createdAt } = newOrder
+            try {
+              await this.mailService.sendOrderConfirmation(email, {
+                no, service, clientName, clientAddress, clientTel, createdAt: dayjs(createdAt).format("YYYY-MM-DD HH:mm:ss")
+              });
+            } catch (error) {
+              console.log(error);
+            }
+          }
+        }
+      }
+    }
+
+    return newOrder;
   }
 
   @Delete('delete/:id')
